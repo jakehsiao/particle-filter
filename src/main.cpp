@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <ctime>
+#include <cstdio>
 #include <iomanip>
 #include <random>
 
@@ -120,17 +121,31 @@ int main() {
 		int num_particles = particles.size();
 		double highest_weight = 0.0;
 		Particle best_particle;
-		for (int i = 0; i < num_particles; ++i) {
-			if (particles[i].weight > highest_weight) {
-				highest_weight = particles[i].weight;
-				best_particle = particles[i];
+		// DEBUG
+		int print_count = 0; 
+
+		for (int k = 0; k < num_particles; ++k) {
+			if (particles[k].weight > highest_weight) {
+				highest_weight = particles[k].weight;
+				best_particle = particles[k];
 			}
+
+			double *this_error = getError(gt[i].x, gt[i].y, gt[i].theta, particles[k].x, 
+			    particles[k].y, particles[k].theta);
+
+			if (print_count < 10){
+			// cout << "weight:" << particles[k].weight << " error:" << this_error[0] << this_error[1] << endl;
+			print_count += 1;
+			}
+
 		}
+		cout << endl;
 		double *avg_error = getError(gt[i].x, gt[i].y, gt[i].theta, best_particle.x, best_particle.y, best_particle.theta);
 
 		for (int j = 0; j < 3; ++j) {
 			total_error[j] += avg_error[j];
 			cum_mean_error[j] = total_error[j] / (double)(i + 1);
+			
 		}
 		
 		// Print the cumulative weighted error
