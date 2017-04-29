@@ -50,7 +50,9 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 	std::normal_distribution<double> dist_y(0, std_pos[1]);
 	std::normal_distribution<double> dist_theta(0, std_pos[2]);
 
+	int pc = 0;
 	for (int i = 0; i < num_particles; i++){
+	  
 	  // add noise
 	  Particle* this_particle = &particles[i];
 	  this_particle->x += dist_x(gen);
@@ -64,7 +66,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 	  this_particle->x += v_over_yr * (sin(new_theta) - sin(theta));
 	  this_particle->y += v_over_yr * (cos(theta) - cos(new_theta));
 	  this_particle->theta = new_theta;
-
+	  	
 	} 
 
 }
@@ -82,6 +84,7 @@ double** ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std
 	  errors[i] = new double[2];
 
 	  LandmarkObs lm = predicted[i];
+	  //std::cout << "pred:" << lm.x << " " << lm.y;
 	  double best_distance = 9999;
 	  LandmarkObs obs_bestfit;
 
@@ -97,9 +100,12 @@ double** ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std
 	      best_distance = distance;
 	    }
 	  }
+	  //std::cout << " obs:" << obs_bestfit.x << " " << obs_bestfit.y;
 
 	  errors[i][0] = obs_bestfit.x - lm.x;
 	  errors[i][1] = obs_bestfit.y - lm.y;
+
+	  //std::cout << " err:" << dist(obs_bestfit.x, obs_bestfit.y, lm.x, lm.y) << std::endl;
 	}
 
 	return errors;
@@ -139,6 +145,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	      predicted.push_back(this_lm);
 	    }
 	  }
+	  
 
 
 	  std::vector<LandmarkObs> observations_transformed;
@@ -156,7 +163,9 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 	    observations_transformed.push_back(transformed);
 
+
 	  }
+	  //std::cout << std::endl;
 	  
 	  //  compare to the observation of it, returns the errors
 	  double** errors = dataAssociation(predicted, observations_transformed);
@@ -175,10 +184,16 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	    double sqr_delta_x = pow(errors[j][0], 2);
 	    double sqr_delta_y = pow(errors[j][1], 2);
 
-	    *w *= exp((-1/2) * (sqr_delta_x / var_x + sqr_delta_y / var_y)) / sqrt(2 * 3.14159 * var_x * var_y);
+	    // weight calc 1: by gaussian prob density
+	    *w *= exp((-0.5) * (sqr_delta_x / var_x + sqr_delta_y / var_y)) / sqrt(2 * 3.14159 * var_x * var_y);
+	    // weight calc 2: by eu dist
+	    //*w += sqrt(sqr_delta_x + sqr_delta_y) / m;
+
 	  }
 	  particles[i].weight = *w;
+	//std::cout << "weight: " << *w << std::endl << std::endl;
 	}
+	//std::cout << "FINISH ONE ITER" << std::endl;
 
 }
 
