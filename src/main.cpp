@@ -21,6 +21,7 @@ using namespace std;
 int main() {
 	
 	// parameters related to grading.
+  	// TOTONE
 	int time_steps_before_lock_required = 100; // number of time steps before accuracy is checked by grader.
 	double max_runtime = 45; // Max allowable runtime to pass [sec]
 	double max_translation_error = 1; // Max allowable translation error to pass [m]
@@ -134,7 +135,8 @@ int main() {
 			    particles[k].y, particles[k].theta);
 
 			if (print_count < 10){
-			// cout << "weight:" << particles[k].weight << " error:" << this_error[0] << this_error[1] << endl;
+			  cout << "weight:" << particles[k].weight << " error:" << this_error[0]*this_error[0] + this_error[1]*this_error[1]  << " " <<this_error[0] << 
+			    " " << this_error[1] << endl;
 			print_count += 1;
 			}
 
